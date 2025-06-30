@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Application {
+  id                    String   @id @default(cuid())
+  tokenId               String   @unique
+  recruiterEmail        String
+  
+  // Personal Information
+  fullName              String
+  dateOfBirth           DateTime
+  sinNumber             String
+  streetAddress         String
+  city                  String
+  province              String
+  postalCode            String
+  majorIntersection     String
+  
+  // Contact Information
+  mobileNumber          String
+  whatsappNumber        String?
+  email                 String
+  emergencyName         String
+  emergencyContact      String
+  emergencyRelationship String
+  
+  // Legal Status & Education
+  legalStatus           String
+  classSchedule         Json?
+  
+  // Transportation & Equipment
+  transportation        String
+  hasSafetyShoes        Boolean
+  safetyShoeType        String?
+  hasForklifCert        Boolean
+  forkliftValidity      DateTime?
+  backgroundCheckConsent Boolean
+  
+  // Work History
+  lastCompanyName       String?
+  companyType           String?
+  jobResponsibilities   String?
+  agencyOrDirect        String?
+  reasonForLeaving      String?
+  
+  // Physical Capabilities
+  liftingCapability     String
+  
+  // Job Preferences
+  jobType               String
+  commitmentMonths      Int
+  morningDays           String[]
+  afternoonDays         String[]
+  nightDays             String[]
+  
+  // Referral Source
+  referralSource        String
+  referralPersonName    String?
+  referralPersonContact String?
+  referralRelationship  String?
+  referralInternetSource String?
+  
+  // Aptitude Test
+  aptitudeScore         Int
+  aptitudeAnswers       Json
+  
+  // Agreement
+  agreementName         String
+  agreementDate         DateTime
+  termsAccepted         Boolean
+  
+  // Metadata
+  submittedAt           DateTime @default(now())
+  status                String   @default("pending")
+  recruiterNotes        String?
+  
+  // Relations
+  documents             ApplicationDocument[]
+  
+  @@map("applications")
+}
+
+model ApplicationDocument {
+  id            String      @id @default(cuid())
+  applicationId String
+  fileName      String
+  fileUrl       String
+  fileType      String
+  fileSize      Int
+  uploadedAt    DateTime    @default(now())
+  
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  
+  @@map("application_documents")
+}
+
+model ApplicationToken {
+  id              String    @id @default(cuid())
+  token           String    @unique
+  recruiterEmail  String
+  applicantEmail  String?
+  expiresAt       DateTime
+  usedAt          DateTime?
+  createdAt       DateTime  @default(now())
+  
+  @@map("application_tokens")
+}
+
+model Recruiter {
+  id       String @id @default(cuid())
+  email    String @unique
+  name     String
+  password String
+  role     String @default("recruiter")
+  
+  @@map("recruiters")
+}
